@@ -1,5 +1,6 @@
 ﻿using System;
 using System.DirectoryServices;
+using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -30,10 +31,10 @@ namespace LDAP.ConsoleApp
             DirectoryEntry user = myLdapConnection.Children.Add($"CN={first} {last}", "user");
 
             // User name (domain based)   
-            user.Properties["userprincipalname"].Add($"{username}@{domain}");
+            user.Properties[IdentityType.UserPrincipalName.ToString()].Add($"{username}@{domain}");
 
             // User name (older systems)  
-            user.Properties["samaccountname"].Add(username);
+            user.Properties[IdentityType.SamAccountName.ToString()].Add(username);
 
             // Surname  
             user.Properties["sn"].Add(last);

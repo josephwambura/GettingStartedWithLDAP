@@ -239,7 +239,7 @@ namespace LDAP.ConsoleApp
                 // enter AD settings  
                 PrincipalContext AD = new PrincipalContext(ContextType.Domain, Utils.DomainUrl(domainUrl));
 
-                // create search user and add criteria  
+                // create search user and add criteria
                 Console.Write("Enter logon name: ");
                 UserPrincipal u = new UserPrincipal(AD)
                 {
@@ -330,35 +330,29 @@ namespace LDAP.ConsoleApp
             try
             {
                 // create LDAP connection object  
-
                 DirectoryEntry myLdapConnection = Utils.CreateDirectoryEntry(ldapUrl, loginUserName, loginPassword);
 
                 // create search object which operates on LDAP connection object  
                 // and set search object to only find the user specified  
-
                 DirectorySearcher search = new DirectorySearcher(myLdapConnection)
                 {
-                    Filter = $"(cn={username})"
+                    Filter = $"({IdentityType.SamAccountName}={username})"
                 };
 
                 // create results objects from search object  
-
                 SearchResult result = search.FindOne();
 
                 if (result != null)
                 {
                     // user exists, cycle through LDAP fields (cn, telephonenumber etc.)  
-
                     ResultPropertyCollection fields = result?.Properties;
 
                     foreach (string ldapField in fields.PropertyNames)
                     {
                         // cycle through objects in each field e.g. group membership  
                         // (for many fields there will only be one object such as name)  
-
                         foreach (object myCollection in fields[ldapField])
-                            Console.WriteLine(string.Format("{0,-20} : {1}",
-                                          ldapField, myCollection.ToString()));
+                            Console.WriteLine(string.Format("{0,-20} : {1}", ldapField, myCollection.ToString()));
                     }
                 }
                 else
@@ -387,7 +381,7 @@ namespace LDAP.ConsoleApp
                 DirectoryEntry myLdapConnection = Utils.CreateDirectoryEntry(ldapUrl, loginUserName, loginPassword);
                 DirectorySearcher search = new DirectorySearcher(myLdapConnection)
                 {
-                    Filter = $"(cn={username})"
+                    Filter = $"({IdentityType.SamAccountName}={username})"
                 };
 
                 // create an array of properties that we would like and  
@@ -430,7 +424,7 @@ namespace LDAP.ConsoleApp
 
                 DirectorySearcher search = new DirectorySearcher(myLdapConnection)
                 {
-                    Filter = $"(cn={username})"
+                    Filter = $"({IdentityType.SamAccountName}={username})"
                 };
 
                 search?.PropertiesToLoad.Add("title");
