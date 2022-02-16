@@ -40,7 +40,22 @@ loginPassword = Console.ReadLine();
 
 Console.Write($"\nYou entered\nLDAP URL: ('{ldapUrl}'), Domain URL: ('{domainUrl}'), Username: ('{loginUserName}'), Password: ('{loginPassword}')\n\n");
 
-Console.Write("Select an option to proceed:\n1. All Users\n2. Create User\n3. View Newer Details\n4. View Newer Dropdowns\n5. View Newer Phones\n6. Retrieve All Info\n7. Retrieve Some Info\n8. Update User\n9. View Menu\n00. To enter LDAP Details\n000. To exit\n\n");
+var instructions = "Select an option to proceed:\n" +
+                "1. All Users\n" +
+                "2. Create User\n" +
+                "3. View Newer Details\n" +
+                "4. View Newer Dropdowns\n" +
+                "5. View Newer Phones\n" +
+                "6. Retrieve All Info\n" +
+                "7. Retrieve Some Info\n" +
+                "8. Update User\n" +
+                "9. Validate User\n" +
+                "10. Validate User Exists\n" +
+                "11. View Menu\n" +
+                "00. To enter LDAP Details\n" +
+                "000. To exit\n\n";
+
+Console.Write(instructions);
 
 string? action;
 do
@@ -132,7 +147,15 @@ do
             UpdateUser(ldapUrl, loginUserName, loginPassword);
             break;
         case "9":
-            Console.Write("Select an option to proceed:\n1. All Users\n2. Create User\n3. View Newer Details\n4. View Newer Dropdowns\n5. View Newer Phones\n6. Retrieve All Info\n7. Retrieve Some Info\n8. Update User\n9. View Menu\n00. To enter LDAP Details\n000. To exit\n\n");
+            Console.Write("\nValidate User Action\n");
+            ValidateUser(domainUrl);
+            break;
+        case "10":
+            Console.Write("\nValidate User Exists Action\n");
+            ValidateUserExists(domainUrl);
+            break;
+        case "11":
+            Console.Write(instructions);
             break;
         case "000":
             break;
@@ -178,6 +201,55 @@ static void AllUsers(string? ldapUrl, string? loginUserName, string? loginPasswo
     catch (Exception e)
     {
         Console.WriteLine($"Exception caught:\n\n{e}\n");
+    }
+}
+
+#endregion
+
+#region Validate User (with password) exits
+
+static bool ValidateUser(string domainUrl)
+{
+    try
+    {
+        Console.Write("Enter Username: ");
+        string? userName = Console.ReadLine();
+        Console.Write("Enter Password: ");
+        string? password = Console.ReadLine();
+
+        using (var domainContext = new PrincipalContext(ContextType.Domain, Utils.DomainUrl(domainUrl)))
+        {
+            return domainContext.ValidateCredentials(userName, password);
+        }
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Exception caught:\n\n{e}\n");
+        Console.ReadLine();
+        return false;
+    }
+}
+
+static bool ValidateUserExists(string domainUrl)
+{
+    try
+    {
+        Console.Write("Enter Username: ");
+        string? userName = Console.ReadLine();
+
+        using (var domainContext = new PrincipalContext(ContextType.Domain, Utils.DomainUrl(domainUrl)))
+        {
+            using (var foundUser = UserPrincipal.FindByIdentity(domainContext, IdentityType.SamAccountName, userName))
+            {
+                return foundUser != null;
+            }
+        }
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Exception caught:\n\n{e}\n");
+        Console.ReadLine();
+        return false;
     }
 }
 
